@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Toss</title>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            font-family: Arial;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .myClass {
+            background-color: rgba(0, 150, 0, 0.2);
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            background: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        @keyframes buttonPop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #tossCoinBtnID.animate {
+            animation: buttonPop 0.3s ease;
+        }
+
+        #coinImageID {
+            display: block;
+            margin: 20px auto;
+            border: 3px solid red;
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+
+        .flip {
+            animation: flip 0.8s ease-in;
+        }
+
+        @keyframes flip {
+            0% {
+                transform: rotateX(0deg);
+            }
+
+            100% {
+                transform: rotateX(720deg);
+            }
+        }
+
+        /* card */
+        .card {
+            width: 260px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .card p {
+            font-size: 18px;
+            margin: 8px 0;
+        }
+
+        /* Animated number change */
+        .statNumber {
+            display: inline-block;
+            transition: all 0.4s ease;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .statNumber.animate {
+            transform: scale(1.5);
+            color: #ff4500;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Coin Toss</h1>
+
+    <button id="tossCoinBtnID">Toss Coin</button>
+    <br>
+    <!-- <button id="flipBtnID">Flip Coin</button> -->
+
+    <img id="coinImageID" src="images/tails.png" alt="Coin" height="120" width="120">
+
+    <div class="card">
+        <h2>Coin Toss Stats</h2>
+
+        <p>Tosses: <span id="tossCount" class="statNumber">0</span></p>
+        <p>Heads: <span id="headsCount" class="statNumber">0</span></p>
+        <p>Tails: <span id="tailsCount" class="statNumber">0</span></p>
+    </div>
+
+    <script>
+        // getting elements from html
+        let tossCoinBtn = document.getElementById("tossCoinBtnID");
+        let coinImage = document.getElementById("coinImageID");
+        let flipBtn = document.getElementById("flipBtnID");
+
+        let tossCount = document.getElementById("tossCount");
+        let headsCount = document.getElementById("headsCount");
+        let tailsCount = document.getElementById("tailsCount");
+
+        // button ref
+        tossCoinBtn.addEventListener("click", tossCoin);
+        // flipBtn.addEventListener("click", flipCoinImg);
+
+        // keeping count
+        let numberOfTosses = 0;
+        let heads = 0;
+        let tails = 0;
+
+        // animating 
+        function animateNumber(element) {
+            element.classList.add("animate");
+            setTimeout(function () {
+                element.classList.remove("animate");
+            }, 400);
+        }
+
+        function flipCoinImg(coinImageFile) {
+            coinImage.classList.remove("flip");
+            coinImage.offsetWidth;
+            coinImage.classList.add("flip");
+            coinImage.src = coinImageFile;
+        }
+
+        function tossCoin() {
+
+            // Animate the Toss Coin button
+            tossCoinBtn.classList.remove("animate");
+            tossCoinBtn.offsetWidth; // force reflow
+            tossCoinBtn.classList.add("animate");
+
+            document.body.classList.add("myClass");
+
+            numberOfTosses++;
+
+            let coinValue = Math.floor(Math.random() * 2) + 1;
+
+            let coinImageFile;
+
+            if (coinValue == 1) {
+                coinImageFile = "images/heads.png";
+                coinImage.alt = "Coin Head";
+                heads++;
+            }
+            else {
+                coinImageFile = "images/tails.png";
+                coinImage.alt = "Coin Tails";
+                tails++;
+            }
+
+            flipCoinImg(coinImageFile);
+
+            // Update numbers
+            tossCount.textContent = numberOfTosses;
+            headsCount.textContent = heads;
+            tailsCount.textContent = tails;
+
+            // Animate numbers
+            animateNumber(tossCount);
+            animateNumber(headsCount);
+            animateNumber(tailsCount);
+
+            // if (numberOfTosses == 5) {
+            //     tossCoinBtn.disabled = true;
+            // }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -14,27 +14,30 @@
     <button id="btnTailsID" onclick="displayTails()">Display Tails</button> -->
     <button id="btnHeadsID">Display Heads</button>
     <button id="btnTailsID">Display Tails</button>
-    
+
     <br> <br>
 
     <img id="coinImageID" src="images/tails.png" alt="Coin" height="120px" width="120px">
 
-   <script>
-    const coinHead = document.getElementById("btnHeadsID");
-    const coinTail = document.getElementById("btnTailsID"); 
-    const coinImage = document.getElementById("coinImageID");
+    <script>
+        const coinHead = document.getElementById("btnHeadsID");
+        const coinTail = document.getElementById("btnTailsID");
+        const coinImage = document.getElementById("coinImageID");
 
-    coinHead.addEventListener("click", showCoinHead);
-    coinTail.addEventListener("click", showTailHead);
+        coinHead.addEventListener("click", showCoinHead);
+        coinTail.addEventListener("click", showTailHead);
 
-    function showCoinHead() {
-        coinImage.src = "images/heads.png";
-    }
+        function showCoinHead() {
+            coinImage.src = "images/heads.png";
+            coinImage.alt = "Coin Head";
+        }
 
-    function showTailHead() {
-        coinImage.src = "images/tails.png";
-    }
-</script>
+        function showTailHead() {
+            coinImage.src = "images/tails.png";
+            coinImage.alt = "Coin Tails";
+
+        }
+    </script>
 
 </body>
 

@@ -136,6 +136,7 @@
     </div>
 
     <script>
+        // getting elements from html
         let tossCoinBtn = document.getElementById("tossCoinBtnID");
         let coinImage = document.getElementById("coinImageID");
         let flipBtn = document.getElementById("flipBtnID");
@@ -144,13 +145,16 @@
         let headsCount = document.getElementById("headsCount");
         let tailsCount = document.getElementById("tailsCount");
 
+        // button ref
         tossCoinBtn.addEventListener("click", tossCoin);
         // flipBtn.addEventListener("click", flipCoinImg);
 
+        // keeping count
         let numberOfTosses = 0;
         let heads = 0;
         let tails = 0;
 
+        // animating 
         function animateNumber(element) {
             element.classList.add("animate");
             setTimeout(function () {

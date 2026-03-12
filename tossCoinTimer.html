@@ -245,17 +245,18 @@
         }
         // Confetti animation
         function createConfetti() {
-            for (var i = 0; i < 50; i++) {
-                var conf = document.createElement("div");
-                conf.className = "confetti";
-                conf.style.left = Math.random() * window.innerWidth + "px";
-                conf.style.background = "hsl(" + Math.random() * 360 + ",100%,50%)";
-                conf.style.width = Math.random() * 8 + 4 + "px";
-                conf.style.height = conf.style.width;
-                document.body.appendChild(conf);
+            for (var i = 0; i < 50; i++) { //Each time it runs, it creates one confetti piece.
+                var conf = document.createElement("div"); //creates a new <div> element
+                conf.className = "confetti";//applies the CSS class confetti
+                conf.style.left = Math.random() * window.innerWidth + "px"; //the confetti appears somewhere across the screen width.
+                conf.style.background = "hsl(" + Math.random() * 360 + ",100%,50%)";//every confetti piece gets a random color.
+                conf.style.width = Math.random() * 8 + 4 + "px";//This makes confetti pieces different sizes.
+                conf.style.height = conf.style.width;//This makes the confetti square shaped.
+                document.body.appendChild(conf);//This inserts the confetti <div> into the webpage.
                 (function (c) {
                     setTimeout(function () { c.remove(); }, 2000);
                 })(conf);
+                //This code runs a small function immediately and schedules the confetti element to be deleted after 2 seconds, so the page does not fill up with too many confetti pieces.
             }
         }
         function tossCoin() {

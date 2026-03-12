@@ -17,10 +17,6 @@
             margin-top: 20px;
         }
 
-        .myClass {
-            background-color: rgba(0, 150, 0, 0.2);
-        }
-
         button {
             padding: 10px 20px;
             margin: 10px;
@@ -50,10 +46,40 @@
             }
         }
 
+        /* Toss Button Glow Animation */
         #tossCoinBtnID.animate {
-            animation: buttonPop 0.3s ease;
+            animation: buttonPop 0.3s ease, buttonGlow 0.6s ease;
         }
 
+        @keyframes buttonPop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes buttonGlow {
+            0% {
+                box-shadow: 0 0 0px #ffcc00;
+            }
+
+            50% {
+                box-shadow: 0 0 15px #ffcc00;
+            }
+
+            100% {
+                box-shadow: 0 0 0px #ffcc00;
+            }
+        }
+
+        /* Coin styles */
         #coinImageID {
             display: block;
             margin: 20px auto;
@@ -61,6 +87,8 @@
             border-radius: 50%;
             transform-style: preserve-3d;
             backface-visibility: hidden;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            transition: box-shadow 0.3s ease;
         }
 
         .flip {
@@ -114,6 +142,25 @@
             transform: scale(1.5);
             color: #ff4500;
         }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffcc00;
+            top: -10px;
+            z-index: 9999;
+            opacity: 0.9;
+            animation: fall 2s linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -136,6 +183,12 @@
     </div>
 
     <script>
+
+        timerID = setInterval(tossCoin, 3000);
+
+
+
+
         // getting elements from html
         let tossCoinBtn = document.getElementById("tossCoinBtnID");
         let coinImage = document.getElementById("coinImageID");
@@ -167,16 +220,49 @@
             coinImage.offsetWidth;
             coinImage.classList.add("flip");
             coinImage.src = coinImageFile;
+            // Shadow effect
+            coinImage.style.boxShadow = "0 15px 25px rgba(0,0,0,0.5)";
+            setTimeout(function () { coinImage.style.boxShadow = "0 8px 15px rgba(0,0,0,0.3)"; }, 400);
         }
-
-        function tossCoin() {
-
-            // Animate the Toss Coin button
+        // Animate the Toss Coin button
+        function animateCoinBtn() {
             tossCoinBtn.classList.remove("animate");
             tossCoinBtn.offsetWidth; // force reflow
             tossCoinBtn.classList.add("animate");
+        }
+        // Animate the Toss Coin button
+        function animateCoinBtn() {
+            tossCoinBtn.classList.remove("animate");
+            tossCoinBtn.offsetWidth; // force reflow
+            tossCoinBtn.classList.add("animate");
+        }
+        // Random pastel background pulse
+        function pulseBackground() {
+            var r = Math.floor(Math.random() * 155 + 100);
+            var g = Math.floor(Math.random() * 155 + 100);
+            var b = Math.floor(Math.random() * 155 + 100);
+            document.body.style.background = "rgb(" + r + "," + g + "," + b + ")";
+        }
+        // Confetti animation
+        function createConfetti() {
+            for (var i = 0; i < 50; i++) {
+                var conf = document.createElement("div");
+                conf.className = "confetti";
+                conf.style.left = Math.random() * window.innerWidth + "px";
+                conf.style.background = "hsl(" + Math.random() * 360 + ",100%,50%)";
+                conf.style.width = Math.random() * 8 + 4 + "px";
+                conf.style.height = conf.style.width;
+                document.body.appendChild(conf);
+                (function (c) {
+                    setTimeout(function () { c.remove(); }, 2000);
+                })(conf);
+            }
+        }
+        function tossCoin() {
 
-            document.body.classList.add("myClass");
+            animateCoinBtn();
+            pulseBackground();
+            animateCoinBtn();
 
             numberOfTosses++;
 
@@ -188,6 +274,7 @@
                 coinImageFile = "images/heads.png";
                 coinImage.alt = "Coin Head";
                 heads++;
+                createConfetti()
             }
             else {
                 coinImageFile = "images/tails.png";
@@ -196,7 +283,13 @@
             }
 
             flipCoinImg(coinImageFile);
+            display();
 
+            // if (numberOfTosses == 5) {
+            //     tossCoinBtn.disabled = true;
+            // }
+        }
+        function display() {
             // Update numbers
             tossCount.textContent = numberOfTosses;
             headsCount.textContent = heads;
@@ -207,9 +300,6 @@
             animateNumber(headsCount);
             animateNumber(tailsCount);
 
-            // if (numberOfTosses == 5) {
-            //     tossCoinBtn.disabled = true;
-            // }
         }
     </script>
 

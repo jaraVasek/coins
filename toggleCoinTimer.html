@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toggle Coin Timer</title>
+
+    <style>
+        .flip {
+            animation: flip 0.8s ease-in;
+        }
+
+        @keyframes flip {
+            0% {
+                transform: rotateX(0deg);
+            }
+
+            100% {
+                transform: rotateX(720deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Toggle Coin Timer On/Off</h1>
+    <!-- Toggle buttin -->
+    <button id="startStopBtnID">Stop/Start</button>
+    <br><br>
+    <!-- Display the starting coin -->
+    <img id="coinImgID" src="images/tails.png" alt="Coin Tails" width="50%">
+    <br><br>
+    <!-- Display running total -->
+    <div id="coinResult">
+        <p id="totalPgID">Total Toss: 0</p>
+        <p id="headsPgID">Total Heads: 0</p>
+        <p id="tailsPgID">Total Tails: 0</p>
+
+    </div>
+    <script>
+        //Getting/reference the htmlt Elements
+        const startStopBtn = document.getElementById("startStopBtnID");
+        const coinImage = document.getElementById("coinImgID");
+
+        const totalPg = document.getElementById("totalPgID");
+        const headsPg = document.getElementById("headsPgID");
+        const tailsPg = document.getElementById("tailsPgID");
+
+        // Add event listeners
+        startStopBtn.addEventListener("click", startStopTimer) //Start/stop the coin toss timer
+
+        // Starting values
+        let total = 0;
+        let heads = 0;
+        let tails = 0;
+
+        // Start with the timer off
+        let timerID = null; //indicates timer is off
+
+        function startStopTimer() {
+            //If timer is stopped -> start it
+            //If timer is started -> stop 
+            //timerID = null -> indicates it is stopped
+
+            if (timerID == null) {
+                timerID = setInterval(tossCoin, 1500) //toss coin every 1.5s
+            }
+            else {
+                //need to stop the timer
+                clearInterval(timerID)
+                timerID = null; //ensures we have an indicator that the timer is now stopped
+            }
+        }
+
+
+        function tossCoin() {
+            let coinImageFile = ""; //declare variable for fileName
+            //Toss the coin
+            //random generate number 1(heads) or 2(tails)
+            let coinValue = Math.floor(Math.random() * 2) + 1
+
+            //running total
+            total++ //total number of tosses
+
+            //what image to show
+            if (coinValue == 1) {
+                //heads
+                heads++; //increment the count of heads 
+                coinImageFile = "images/heads.png";
+                coinImage.alt = "Coin Heads"
+            }
+            else {
+                //tails
+                tails++; //increment the count of tails
+                coinImageFile = "images/tails.png";
+                coinImage.alt = "Coin Tails"
+
+            }
+            displayCoinImage(coinImageFile);
+            displayTotals();
+        }
+
+
+        function displayCoinImage(imageFile) {
+
+            //Animate the display flip coin
+            //using a flip css class
+
+            //this is a code that allows animation to re-run
+            coinImage.classList.remove("flip")//removes the class if exist
+            coinImage.offsetWidth; //reset
+            coinImage.classList.add("flip") //start the animation
+
+            coinImage.src = imageFile;
+        }
+
+
+        function displayTotals() {
+            //Display the number of tosses, heads and tails
+            totalPg.textContent = "Total : " + total;
+            headsPg.textContent = "Heads : " + heads;
+            tailsPg.textContent = "Tails : " + tails;
+        }
+    </script>
+</body>
+
+</html>

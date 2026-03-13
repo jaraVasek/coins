@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Flip</title>
+
+    <!-- Google Fonts: Playfair Display (headings) and Lora (body text) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lora:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ───────────────────────────────
+           OUTER CARD (the whole app)
+        ─────────────────────────────── */
+        .card {
+            font-family: 'Lora', serif;
+            min-height: 640px;
+            border-radius: 24px;
+            /* Warm parchment gradient background */
+            background: linear-gradient(160deg, #fdf8ee 0%, #f5edd8 30%, #ede0c4 60%, #f5edd8 85%, #fdf8ee 100%);
+            border: 1.5px solid rgba(212, 175, 55, 0.35);
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+
+        /* ───────────────────────────────
+           GLOW ORBS (blurry background blobs)
+           These add depth to the background
+        ─────────────────────────────── */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            /* so they don't block clicks */
+            filter: blur(70px);
+        }
+
+        /* Gold orb — top right */
+        .orb-gold {
+            width: 280px;
+            height: 280px;
+            background: #d4af37;
+            top: -100px;
+            right: -80px;
+            opacity: 0.18;
+        }
+
+        /* Red orb — bottom left */
+        .orb-red {
+            width: 220px;
+            height: 220px;
+            background: #c41e3a;
+            bottom: -80px;
+            left: -60px;
+            opacity: 0.10;
+        }
+
+        /* Amber orb — middle left */
+        .orb-amber {
+            width: 180px;
+            height: 180px;
+            background: #aa8c2c;
+            top: 40%;
+            left: -60px;
+            opacity: 0.12;
+        }
+
+
+        /* ───────────────────────────────
+           TITLE SECTION
+        ─────────────────────────────── */
+        .title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d2a27;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: #aa8c2c;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin: 4px 0 0;
+        }
+
+
+        /* ───────────────────────────────
+           GOLD DIVIDER LINE
+        ─────────────────────────────── */
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.4), transparent);
+        }
+
+
+        /* ───────────────────────────────
+           STATUS BAR (shows "Flipping..." etc.)
+        ─────────────────────────────── */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(212, 175, 55, 0.10);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 6px;
+            font-size: 12px;
+            color: #5a4e38;
+            letter-spacing: 0.5px;
+        }
+
+        /* The small circle dot inside the status bar */
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.4);
+            transition: all 0.4s;
+        }
+
+        /* When the timer is running, dot turns red and glows */
+        .status-dot.active {
+            background: #c41e3a;
+            box-shadow: 0 0 10px rgba(196, 30, 58, 0.7);
+        }
+
+
+        /* ───────────────────────────────
+           COIN AREA
+        ─────────────────────────────── */
+
+        /* perspective makes the 3D flip look realistic */
+        .coin-scene {
+            perspective: 1200px;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* The coin itself — holds both faces */
+        .coin {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            transform-style: preserve-3d;
+            /* needed for 3D flipping */
+            border-radius: 50%;
+        }
+
+        /* Both coin faces share this base style */
+        .coin-face {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            backface-visibility: hidden;
+            /* hides a face when it's turned away */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Heads face — gold gradient */
+        .coin-heads {
+            background: radial-gradient(circle at 32% 30%, #fff0a0 0%, #f4d03f 20%, #d4af37 50%, #aa8c2c 72%, #7a6620 100%);
+            border: 4px solid #c9920a;
+            transform: rotateY(0deg);
+            /* faces forward */
+            box-shadow: inset 0 3px 10px rgba(255, 255, 200, 0.4), inset 0 -3px 8px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Tails face — silver gradient */
+        .coin-tails {
+            background: radial-gradient(circle at 32% 30%, #ffffff 0%, #e8e8e8 20%, #c0c0c0 50%, #888 72%, #505050 100%);
+            border: 4px solid #aaa;
+            transform: rotateY(180deg);
+            /* faces backward — flips into view */
+            box-shadow: inset 0 3px 10px rgba(255, 255, 255, 0.45), inset 0 -3px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Shiny rim overlay on each face */
+        .coin-rim {
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            pointer-events: none;
+            box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.5), inset 0 -2px 3px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Shadow underneath the coin */
+        .coin-shadow {
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 16px;
+            background: radial-gradient(ellipse, rgba(100, 70, 0, 0.35) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+
+        /* ───────────────────────────────
+           COIN FLIP ANIMATION
+           The coin rises up, spins fast, then slows and lands
+        ─────────────────────────────── */
+        @keyframes flipCoin {
+            0% {
+                transform: rotateY(0deg) rotateX(0deg) translateY(0px);
+            }
+
+            8% {
+                transform: rotateY(180deg) rotateX(12deg) translateY(-20px);
+            }
+
+            20% {
+                transform: rotateY(420deg) rotateX(22deg) translateY(-38px);
+            }
+
+            35% {
+                transform: rotateY(720deg) rotateX(18deg) translateY(-42px);
+            }
+
+            50% {
+                transform: rotateY(960deg) rotateX(8deg) translateY(-28px);
+            }
+
+            65% {
+                transform: rotateY(1200deg) rotateX(-6deg) translateY(-12px);
+            }
+
+            78% {
+                transform: rotateY(1350deg) rotateX(-3deg) translateY(-4px);
+            }
+
+            88% {
+                transform: rotateY(var(--land)) rotateX(1deg) translateY(-1px);
+            }
+
+            94% {
+                transform: rotateY(var(--land)) rotateX(-0.5deg) translateY(0px);
+            }
+
+            100% {
+                transform: rotateY(var(--land)) rotateX(0deg) translateY(0px);
+            }
+
+            /* --land is set by JS: 1440deg = heads, 1620deg = tails */
+        }
+
+        /* Shadow shrinks as coin rises, grows back as it lands */
+        @keyframes shadowFlip {
+
+            0%,
+            100% {
+                transform: translateX(-50%) scaleX(1) scaleY(1);
+                opacity: 0.6;
+            }
+
+            35% {
+                transform: translateX(-50%) scaleX(0.35) scaleY(0.5);
+                opacity: 0.1;
+            }
+
+            65% {
+                transform: translateX(-50%) scaleX(0.55) scaleY(0.7);
+                opacity: 0.2;
+            }
+        }
+
+        /* These classes are added/removed by JavaScript to trigger the animation */
+        .coin.flipping {
+            animation: flipCoin 1.4s cubic-bezier(0.22, 0.08, 0.3, 1) forwards;
+        }
+
+        .coin.flipping~.coin-shadow {
+            animation: shadowFlip 1.4s cubic-bezier(0.22, 0.08, 0.3, 1) forwards;
+        }
+
+
+        /* ───────────────────────────────
+           RESULT TEXT ("Heads" / "Tails")
+        ─────────────────────────────── */
+        .result {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #2d2a27;
+            min-height: 30px;
+            text-align: center;
+        }
+
+
+        /* ───────────────────────────────
+           START / STOP BUTTON
+        ─────────────────────────────── */
+        #mainBtn {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 13px 44px;
+            border: 1.5px solid #d4af37;
+            background: rgba(212, 175, 55, 0.10);
+            color: #2d2a27;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        #mainBtn:hover {
+            background: rgba(212, 175, 55, 0.22);
+            transform: translateY(-2px);
+        }
+
+        #mainBtn:active {
+            transform: translateY(0);
+        }
+
+        /* When running, button turns red */
+        #mainBtn.running {
+            background: #c41e3a;
+            border-color: #c41e3a;
+            color: #fff;
+        }
+
+        #mainBtn.running:hover {
+            background: #a01830;
+        }
+
+
+        /* ───────────────────────────────
+           STATS SECTION (Total / Heads / Tails)
+        ─────────────────────────────── */
+        .stats-grid {
+            width: 100%;
+            padding: 20px;
+            background: rgba(212, 175, 55, 0.07);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* 3 equal columns */
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(212, 175, 55, 0.18);
+            border-radius: 8px;
+            padding: 14px 8px;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .stat-box:hover {
+            background: rgba(212, 175, 55, 0.14);
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #aa8c2c;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d2a27;
+        }
+
+
+        /* ───────────────────────────────
+           RATIO BAR (gold bar showing % heads)
+        ─────────────────────────────── */
+        .ratio-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(212, 175, 55, 0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.22);
+        }
+
+        .ratio-fill {
+            height: 100%;
+            width: 50%;
+            /* updated by JS */
+            background: linear-gradient(90deg, #d4af37, #aa8c2c);
+            transition: width 0.5s ease;
+        }
+
+        .ratio-label {
+            font-size: 12px;
+            color: #5a4e38;
+            text-align: center;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── MAIN CARD ── -->
+    <div class="card">
+
+        <!-- Background glow orbs -->
+        <div class="orb orb-gold"></div>
+        <div class="orb orb-red"></div>
+        <div class="orb orb-amber"></div>
+
+        <!-- Title -->
+        <div style="text-align: center; position: relative;">
+            <p class="title">Coin Flip</p>
+            <p class="subtitle">Test your luck</p>
+        </div>
+
+        <!-- Gold divider line -->
+        <div class="divider"></div>
+
+        <!-- Status bar -->
+        <div class="status-bar">
+            <span class="status-dot" id="dot"></span>
+            <span id="statusText">Ready to flip</span>
+        </div>
+
+        <!-- Coin -->
+        <div class="coin-scene">
+            <div class="coin" id="coin">
+
+                <!-- Heads side (faces forward) -->
+                <div class="coin-face coin-heads">
+                    <div class="coin-rim"></div>
+                    <!-- 👇 Replace the src with your own image path -->
+                    <img src="images/heads.png"
+                        style="width: 80%; height: 80%; object-fit: contain; border-radius: 50%;">
+                </div>
+
+                <!-- Tails side (faces backward, flips into view) -->
+                <div class="coin-face coin-tails">
+                    <div class="coin-rim"></div>
+                    <!-- 👇 Replace the src with your own image path -->
+                    <img src="images/tails.png"
+                        style="width: 80%; height: 80%; object-fit: contain; border-radius: 50%;">
+                </div>
+
+            </div>
+            <!-- Shadow under the coin -->
+            <div class="coin-shadow" id="coinShadow"></div>
+        </div>
+
+        <!-- Shows "Heads" or "Tails" after each flip -->
+        <div class="result" id="result"></div>
+
+        <!-- Start / Stop button -->
+        <button id="mainBtn" onclick="toggleTimer()">Start flipping</button>
+
+        <!-- Gold divider line -->
+        <div class="divider"></div>
+
+        <!-- Stats: Total / Heads / Tails -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">Total</div>
+                <div class="stat-number" id="totalNum">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Heads</div>
+                <div class="stat-number" id="headsNum">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Tails</div>
+                <div class="stat-number" id="tailsNum">0</div>
+            </div>
+        </div>
+
+        <!-- Ratio bar -->
+        <div class="ratio-track">
+            <div class="ratio-fill" id="ratioFill"></div>
+        </div>
+        <p class="ratio-label" id="ratioLabel">50% heads / 50% tails</p>
+
+    </div>
+
+
+    <script>
+
+        // ── Counters ──
+        let total = 0;
+        let heads = 0;
+        let tails = 0;
+        let timer = null; // null means timer is off
+
+        // ── Start or stop the timer when the button is clicked ──
+        function toggleTimer() {
+            const btn = document.getElementById('mainBtn');
+            const dot = document.getElementById('dot');
+            const statusText = document.getElementById('statusText');
+
+            if (timer === null) {
+                // Timer is OFF → start it
+                timer = setInterval(flipCoin, 2000); // flip every 2 seconds
+                btn.textContent = 'Stop flipping';
+                btn.classList.add('running');
+                dot.classList.add('active');
+                statusText.textContent = 'Flipping...';
+                flipCoin(); // flip immediately instead of waiting 2s
+            } else {
+                // Timer is ON → stop it
+                clearInterval(timer);
+                timer = null;
+                btn.textContent = 'Start flipping';
+                btn.classList.remove('running');
+                dot.classList.remove('active');
+                statusText.textContent = 'Timer stopped';
+            }
+        }
+
+        // ── Flip the coin once ──
+        function flipCoin() {
+            // Randomly decide heads or tails
+            const isHeads = Math.random() < 0.5;
+
+            // Update counters
+            total++;
+            if (isHeads) {
+                heads++;
+            } else {
+                tails++;
+            }
+
+            // ── Play the animation ──
+            const coin = document.getElementById('coin');
+
+            // 1440deg lands on heads, 1620deg lands on tails
+            coin.style.setProperty('--land', isHeads ? '1440deg' : '1620deg');
+
+            // Remove the class first so the animation can restart
+            coin.classList.remove('flipping');
+            void coin.offsetWidth; // tiny trick to force the browser to reset
+            coin.classList.add('flipping');
+
+            // ── Show the result text after the coin lands ──
+            setTimeout(function () {
+                document.getElementById('result').textContent = isHeads ? 'Heads' : 'Tails';
+            }, 1150);
+
+            // ── Update the score boxes ──
+            document.getElementById('totalNum').textContent = total;
+            document.getElementById('headsNum').textContent = heads;
+            document.getElementById('tailsNum').textContent = tails;
+
+            // ── Update the ratio bar ──
+            const pct = Math.round((heads / total) * 100);
+            document.getElementById('ratioFill').style.width = pct + '%';
+            document.getElementById('ratioLabel').textContent = pct + '% heads / ' + (100 - pct) + '% tails';
+        }
+
+    </script>
+
+</body>
+
+</html>
